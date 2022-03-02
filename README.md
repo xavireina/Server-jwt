@@ -105,10 +105,17 @@ Meetings in which I have participated - As a user I want to see the meetings I h
  users: [String]
 }
 
-​
+
+
+## ​Wireframes
+
+![Wireframes](docs/wireframes.png)
+
 
 ## Links
 
 - [Slides]()
 - [Frontend repository]()
 - [Deployed version]()
+
+
