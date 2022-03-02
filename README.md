@@ -86,11 +86,11 @@ Meetings in which I have participated - As a user I want to see the meetings I h
 
 {
  email: String,
- hashedPassword: String,
+ password: String,
  name: String,
  age: Number,
- img: [DATA],
- gender: ENUM
+ gender: ENUM,
+ image: [DATA],
 }
 
 ​Meeting model​
@@ -98,10 +98,9 @@ Meetings in which I have participated - As a user I want to see the meetings I h
 {
  name: String,
  description: String,
- datetime: Datetime,
+ date: Datetime,
  duration: String,
- location: Array,
- imgMaps: String,
+ location: String,
  users: [String]
 }
 
