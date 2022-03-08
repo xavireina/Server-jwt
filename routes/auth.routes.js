@@ -122,4 +122,14 @@ router.get('/verify', isAuthenticated, (req, res, next) => {
   res.status(200).json(req.payload);
 });
 
+router.get('auth/logout', async (req, res, next) => {
+    if (req.session) {
+      req.session.auth = null;
+      res.clearCookie('auth');
+      req.session.destroy(function () {});
+    }
+    res.redirect('/');
+  });
+  
+
 module.exports = router;
