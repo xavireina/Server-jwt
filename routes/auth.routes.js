@@ -9,9 +9,9 @@ const saltRounds = 10;
 
 // POST  /auth/signup
 router.post('/signup', (req, res, next) => {
-  const { email, password, name, age, gender} = req.body;
+  const { email, password, name, age, gender } = req.body;
   // Check if email or password or name are provided as empty string
-  if (email === '' || password === '' || name === '') {
+  if (email === '' || password === '' || name === '' || age === '' || gender === '') {
     res.status(400).json({ message: 'Provide email, password and name' });
     return;
   }
@@ -24,7 +24,7 @@ router.post('/signup', (req, res, next) => {
   }
 
   // Use regex to validate the password format
-  const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+  const passwordRegex = /(?=.\d)(?=.[a-z])(?=.*[A-Z]).{6,}/;
   if (!passwordRegex.test(password)) {
     res.status(400).json({
       message: 'Password must have at least 6 characters and contain at least one number, one lowercase and one uppercase letter.',
@@ -47,7 +47,7 @@ router.post('/signup', (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return User.create({ email, password: hashedPassword, name, age:age, gender:gender });
+      return User.create({ email, password: hashedPassword, name, age, gender });
     })
     .then(createdUser => {
       // Deconstruct the newly created user object to omit the password
@@ -69,7 +69,6 @@ router.post('/signup', (req, res, next) => {
 // POST  /auth/login
 router.post('/login', (req, res, next) => {
   const { email, password } = req.body;
-
   // Check if email or password are provided as empty string
   if (email === '' || password === '') {
     res.status(400).json({ message: 'Provide email and password.' });
@@ -90,10 +89,10 @@ router.post('/login', (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name } = foundUser;
+        const { _id, email, name, age, gender } = foundUser;
 
         // Create an object that will be set as the token payload
-        const payload = { _id, email, name };
+        const payload = { _id, email, name, age, gender };
 
         // Create and sign the token
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
@@ -122,13 +121,36 @@ router.get('/verify', isAuthenticated, (req, res, next) => {
 });
 
 router.get('auth/logout', async (req, res, next) => {
-    if (req.session) {
-      req.session.auth = null;
-      res.clearCookie('auth');
-      req.session.destroy(function () {});
-    }
-    res.redirect('/');
+  if (req.session) {
+    req.session.auth = null;
+    res.clearCookie('auth');
+    req.session.destroy(function () {});
+  }
+  res.redirect('/');
+});
+
+// POST  /auth/edit
+router.post('/edit', isAuthenticated, (req, res, next) => {
+  const { name, age, gender } = req.body;
+  const filter = { email: req.payload.email };
+  const update = { name: name, age: age, gender: gender };
+
+  User.findOneAndUpdate(filter, update, {
+    new: false,
+    returnOriginal: false,
+  }).then(user => {
+    const { _id, email, name, age, gender } = user;
+    const payload = { _id, email, name, age, gender };
+
+    // Create and sign the token
+    const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+      algorithm: 'HS256',
+      expiresIn: '6h',
+    });
+
+    // Send the token as the response
+    res.status(200).json({ authToken: authToken });
   });
-  
+});
 
 module.exports = router;
