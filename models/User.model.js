@@ -21,9 +21,9 @@ const userSchema = new Schema({
     required: true,
   },
   gender: {
-    type: Number,
+    type: String,
     required: true,
-    enum : ['Male','Female', 'Undefined'],
+    //enum : ['Male','Female', 'Undefined'],
   },
   image: {
     data: Buffer,

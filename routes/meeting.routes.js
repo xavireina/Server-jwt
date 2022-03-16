@@ -1,7 +1,7 @@
 const express = require('express');
 const User = require('../models/User.model');
 const Meeting = require('../models/Meeting.model');
-// const isLoggedIn = require('../middlewares');
+//const isLoggedIn = require('../middlewares');
 
 function meetingRoutes() {
   const router = express.Router();

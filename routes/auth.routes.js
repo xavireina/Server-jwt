@@ -9,8 +9,7 @@ const saltRounds = 10;
 
 // POST  /auth/signup
 router.post('/signup', (req, res, next) => {
-  const { email, password, name } = req.body;
-
+  const { email, password, name, age, gender} = req.body;
   // Check if email or password or name are provided as empty string
   if (email === '' || password === '' || name === '') {
     res.status(400).json({ message: 'Provide email, password and name' });
@@ -48,7 +47,7 @@ router.post('/signup', (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return User.create({ email, password: hashedPassword, name });
+      return User.create({ email, password: hashedPassword, name, age:age, gender:gender });
     })
     .then(createdUser => {
       // Deconstruct the newly created user object to omit the password
