@@ -48,7 +48,7 @@ mongoose
           console.log('An error happened:', error);
           return;
         }
-        console.log('The amount of meetings are: ', items.length);
+        console.log('The amount of users are: ', items.length);
       });
   })
   .then(() => {
