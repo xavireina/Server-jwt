@@ -89,11 +89,10 @@ router.post('/login', (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name, age, gender } = foundUser;
+        const { _id, email, name, age, gender, description, image } = foundUser;
 
         // Create an object that will be set as the token payload
-        const payload = { _id, email, name, age, gender };
-
+        const payload = { _id, email, name, age, gender, description, image };
         // Create and sign the token
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
           algorithm: 'HS256',
@@ -131,16 +130,16 @@ router.get('auth/logout', async (req, res, next) => {
 
 // POST  /auth/edit
 router.post('/edit', isAuthenticated, (req, res, next) => {
-  const { name, age, gender } = req.body;
+  const { name, age, gender, description } = req.body;
   const filter = { email: req.payload.email };
-  const update = { name: name, age: age, gender: gender };
+  const update = { name: name, age: age, gender: gender, description: description };
 
   User.findOneAndUpdate(filter, update, {
     new: false,
     returnOriginal: false,
   }).then(user => {
-    const { _id, email, name, age, gender } = user;
-    const payload = { _id, email, name, age, gender };
+    const { _id, email, name, age, gender, description } = user;
+    const payload = { _id, email, name, age, gender, description };
 
     // Create and sign the token
     const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
