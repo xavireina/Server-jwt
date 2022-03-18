@@ -1,83 +1,58 @@
-const express = require('express');
-const User = require('../models/User.model');
+const router = require('express').Router();
 const Meeting = require('../models/Meeting.model');
-//const isLoggedIn = require('../middlewares');
 
-function meetingRoutes() {
-  const router = express.Router();
+router.get('/', async (req, res, next) => {
+  try {
+    const allmeetings = await Meeting.find({});
+    return res.json({ meetings: allmeetings });
+  } catch (e) {
+    next(e);
+  }
+});
 
-  router.get('/', async (req, res, next) => {
-    
-    try {
-      const allmeetings = await Meeting.find({});
-      
-      res.json({ meetings: allmeetings });
-    } catch (e) {
-      next(e);
-    }
-  });
-
-  router.post('/:id/join', async (req, res, next) => {
-    const { id } = req.params;
-    const user = req.payload;
-    try {
-      const meeting = await Meeting.findById(id);
+router.post('/:id/join', async (req, res, next) => {
+  const { id } = req.params;
+  const user = req.payload;
+  try {
+    await Meeting.findById(id).then(meeting => {
       // Comprovem que l'usuari no estigui unit ja
-      if (!meeting.usersJoined.includes(user._id)) {
-        meeting.usersJoined.push(user._id);
+      if (!meeting.users.includes(user._id)) {
+        meeting.users.push(user);
         meeting.save();
       }
       return res.json({ updated: meeting });
-    } catch (e) {
-      next(e);
-    }
-  });
+    });
+  } catch (e) {
+    res.status(401).json({ message: 'Unable to join the meeting' });
+  }
+});
 
-  router.get('/:id', async (req, res, next) => {
-    const { id } = req.params;
-    try {
-      const meeting = await Meeting.findById(id);
-      return res.json({ meeting: meeting });
-    } catch (e) {
-      next(e);
-    }
-  });
-
-// Estas rutas no se usan por el momento...
-  router.post('/', async (req, res, next) => {
-    const { name, location, date, duration, description, users } = req.body;
-    const user = req.payload;
-    try {
-      if (!name || !location || !date || !duration || !description || !users) {
-        return next(new Error('missing something from body') )
+router.post('/:id/unjoin', async (req, res, next) => {
+  const { id } = req.params;
+  const user = req.payload;
+  try {
+    await Meeting.findById(id).then(meeting => {
+      // Comprovem que l'usuari estigui unit ja
+      var index = meeting.users.indexOf(user._id);
+      if (index !== -1) {
+        meeting.users.splice(index, 1);
+        meeting.save();
       }
-      const meeting = await Meeting.create({ name, location, date, duration, description, users: user._id });
-      res.json({ created: meeting });
-    } catch (e) {
-      next(e);
-    }
-  });
+      return res.json({ updated: meeting });
+    });
+  } catch (e) {
+    res.status(401).json({ message: 'Unable to join the meeting' });
+  }
+});
 
-  router.put('/:id', async (req, res, next) => {
-    const { id } = req.params;
-    const user = req.payload;
-    const { name, location, date, duration, description, users } = req.body;
-    try {
-      if (!name || !location || !date || !duration || !description || !users) {
-        return next(new Error('missing something from body') )
-      }
-      const editMeeting = await Meeting.findByIdAndUpdate(
-        id,
-        { name, location, date, duration, description, users },
-        { new: true },
-      );
-      return res.json({ updated: editMeeting });
-    } catch (e) {
-      next(e);
-    }
-  });
+router.get('/:id', async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const meeting = await Meeting.findById(id);
+    return res.json({ meeting: meeting });
+  } catch (e) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
-  return router;
-}
-
-module.exports = meetingRoutes;
+module.exports = router;
