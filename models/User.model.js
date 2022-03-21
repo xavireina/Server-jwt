@@ -2,32 +2,36 @@ const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
 
 const userSchema = new Schema({
-  email: { 
-    type: String, 
-    unique: true, 
+  email: {
+    type: String,
+    unique: true,
     required: true,
-    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
   },
-  password: { 
-    type: String, 
-    required: true 
+  password: {
+    type: String,
+    required: true,
   },
-  name: { 
-    type: String, 
-    required: true 
+  name: {
+    type: String,
+    required: true,
   },
   age: {
     type: Number,
     required: true,
   },
   gender: {
-    type: Number,
+    type: String,
     required: true,
-    enum : ['Male','Female', 'Undefined'],
+    enum: ['Male', 'Female', 'Undefined'],
+  },
+  description: {
+    type: String,
+    required: false,
   },
   image: {
-    data: Buffer,
-    contentType: String
+    type: String,
+    required: false,
   },
 });
 
